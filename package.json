@@ -1,5 +1,5 @@
 {
-  "name": "audio-dataset-backend",
+  "name": "annotation-backend",
   "version": "1.0.0",
   "description": "this is a audio dataset backend",
   "scripts": {
