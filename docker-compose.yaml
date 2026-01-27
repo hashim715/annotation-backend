@@ -1,6 +1,6 @@
 version: "3"
 services:
-  audio-dataset-backend:
+  annotation-backend:
     image: annotation-backend
     container_name: annotation-backend
     build: .
