@@ -166,26 +166,26 @@ const start = async (): Promise<void> => {
     //   });
 
     if (process.env.ENV !== "production") {
-      logger.info("🗑️ Clearing all jobs from queue...");
-      await recordingQueue.pause();
-      await recordingQueue.obliterate({ force: true });
-      await recordingQueue.resume();
-      await transcriptQueue.pause();
-      await transcriptQueue.obliterate({ force: true });
-      await transcriptQueue.resume();
-      // await localRecordingQueue.pause();
-      // await localRecordingQueue.obliterate({ force: true });
-      // await localRecordingQueue.resume();
-      logger.info("✅ Queue cleared and ready");
+      // logger.info("🗑️ Clearing all jobs from queue...");
+      // await recordingQueue.pause();
+      // await recordingQueue.obliterate({ force: true });
+      // await recordingQueue.resume();
+      // await transcriptQueue.pause();
+      // await transcriptQueue.obliterate({ force: true });
+      // await transcriptQueue.resume();
+      // // await localRecordingQueue.pause();
+      // // await localRecordingQueue.obliterate({ force: true });
+      // // await localRecordingQueue.resume();
+      // logger.info("✅ Queue cleared and ready");
     }
 
     // Schedule cleanup job to run every 10 minutes
-    cron.schedule("*/10 * * * *", cleanupUnverifiedAccounts);
-    logger.info("⏰ Scheduled cleanup job every 10 minutes");
+    // cron.schedule("*/10 * * * *", cleanupUnverifiedAccounts);
+    // logger.info("⏰ Scheduled cleanup job every 10 minutes");
 
-    server.listen(PORT, (): void => {
-      logger.info(`Listening on port ${PORT}`);
-    });
+    // server.listen(PORT, (): void => {
+    //   logger.info(`Listening on port ${PORT}`);
+    // });
   } catch (err) {
     logger.error(err);
     process.exit(1);
