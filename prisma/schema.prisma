@@ -1,0 +1,278 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")  
+}
+
+model User {
+  id Int @id @default(autoincrement())
+  name String?
+  username String @unique
+  email String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  token String?
+  google_login Boolean @default(false)
+  google_access_token String?
+  google_refresh_token String?
+  google_token_expiry String?
+  expiresAt String?
+  phone_number String? @unique
+  profile_image String?
+  details_added Boolean @default(false)
+  date_of_birth String?
+  gender String?
+  race String?
+  area_grown_up String?
+  language String?
+  city String?
+  country String?
+  countryCode String?
+  state String?
+  language_dialect String?
+  education_level String?
+  language_skills String[] @default(["Speaking", "Listening", "Reading", "Writing"])
+  language_proficieny Int[]
+  language_use String[]
+  quiz_answers String[]
+  user_type String @default("user")
+  verification_token String?
+  verification_secret String?
+  verification_token_expiry String?
+  verification_token_email String?
+  verification_secret_email String?
+  verification_token_expiry_email String?
+  email_verified Boolean @default(false)
+  password String?
+  verified Boolean @default(true)
+  adminVerify String @default("active") // active, suspended, waiting
+  sms_attempts_today Int @default(0)
+  sms_attempts_reset_at DateTime?
+
+  stripeAccountId       String?  @unique
+  stripeOnboardingComplete Boolean @default(false)
+  stripeDetailsSubmitted Boolean @default(false)
+  stripeChargesEnabled   Boolean @default(false)
+  stripePayoutsEnabled   Boolean @default(false)
+  audio_sample_url String?
+
+  paypalEmail String? @db.VarChar(255)
+  paypalPayoutsEnabled Boolean @default(false)
+
+  revolutEmail String? @db.VarChar(255)
+  revolutePayoutsEnabled Boolean @default(false)
+
+  wiseEmail String? @db.VarChar(255)
+  wisePayoutsEnabled Boolean @default(false)
+
+  instaPayPhone String? @db.VarChar(255)
+  instaPayEnabled Boolean @default(false)
+
+  meetingParticipations MeetingParticipant[]
+  conversations Conversation[]
+
+  annotation_recordings String[] @default([])
+  is_annotator Boolean @default(false)
+  
+  @@map("users")
+}
+
+model Meeting {
+  id           Int @id @default(autoincrement())    
+  sessionName  String    @unique 
+  passcode     String
+  language     String    
+  createdAt    DateTime  @default(now())
+  endedAt      DateTime?
+  isActive     Boolean   @default(true)
+  participantCount Int @default(0)
+  
+  participants MeetingParticipant[]
+  conversations Conversation[]
+
+  topics      MeetingTopic[]
+  
+  @@index([sessionName])
+  @@index([isActive])
+  @@map("meetings")
+}
+
+model MeetingParticipant {
+  id           Int @id @default(autoincrement())
+  meetingId    Int
+  userId       Int
+  role         String    @default("participant") 
+  dialect      String?   
+  joinedAt     DateTime  @default(now())
+  leftAt       DateTime?
+  duration     Int?    
+  
+  meeting      Meeting   @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([meetingId, userId]) 
+  @@index([userId])
+  @@index([meetingId])
+  @@map("meeting_participants")
+}
+
+model Conversation {
+  id              Int      @id @default(autoincrement())
+  meetingId       Int
+  userId          Int     
+  recordingId     Int?     
+
+  participantDialects String[]
+  duration        Decimal  @db.Decimal(10, 2)     
+  quality         Decimal  @db.Decimal(10, 2)     
+  earnings        Decimal  @db.Decimal(10, 2) 
+  status          String   @default("incomplete")
+  notes           String?
+  flagged_status  Boolean   @default(true)  
+  flagged_reasons String[]
+  startTime       DateTime
+  endTime         DateTime
+  createdAt       DateTime @default(now())
+  paidAt          DateTime? 
+  paymentStatus   String   @default("unpaid")
+  meeting         Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recording       Recording? @relation(fields: [recordingId], references: [id]) 
+  
+  @@index([userId])
+  @@index([meetingId])
+  @@index([status])
+  @@index([recordingId]) 
+  @@map("conversations")
+}
+
+model Recording {
+  id                Int      @id @default(autoincrement())
+  meetingName       String
+  recordingNumber   Int
+  participantNumber Int
+  s3Key             String
+  s3Url             String
+  recordingStartTime DateTime  
+  status            String   @default("processing")
+  createdAt         DateTime @default(now())
+
+  userId            Int?     
+
+  conversations     Conversation[]
+
+  @@index([meetingName, recordingNumber])
+  @@index([meetingName, recordingStartTime])
+  @@map("recordings")
+}
+
+model RecordingSession {
+  id              Int      @id @default(autoincrement())
+  meetingName     String
+  recordingNumber Int
+  recordingStartTime DateTime
+  recordingEndTime   DateTime?  
+  isRecording     Boolean  @default(false)
+  startedAt       DateTime @default(now())
+  participantCount Int     @default(0)
+  status          String   @default("active") 
+  
+  @@unique([meetingName, recordingNumber])
+  @@index([meetingName])
+  @@map("recording_sessions")
+}
+
+model Topic {
+  id        Int   @id @default(autoincrement())
+  title     String
+  order     Int      
+  subtopics Subtopic[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+
+  meetings  MeetingTopic[]
+
+  @@index([order])
+}
+
+model MeetingTopic {
+  id        Int   @id @default(autoincrement())
+  
+  meetingId Int
+  meeting   Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  
+  topicId   Int
+  topic     Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  
+  order     Int      
+  
+  createdAt DateTime @default(now())
+
+  @@unique([meetingId, topicId])
+  @@index([meetingId])
+  @@index([topicId])
+}
+
+model Subtopic {
+  id          Int   @id @default(autoincrement())
+  title       String
+  overview    String   @db.Text
+  order       Int      
+  
+  topicId     Int
+  topic       Topic    @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  
+  vocabulary  Vocabulary[]
+  starters    ConversationStarter[]
+  examples    Example[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([topicId])
+  @@index([order])
+}
+
+model Vocabulary {
+  id         Int   @id @default(autoincrement())
+  term       String
+  order      Int      
+  
+  subtopicId Int
+  subtopic   Subtopic @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
+  
+  createdAt  DateTime @default(now())
+
+  @@index([subtopicId])
+}
+
+model ConversationStarter {
+  id         Int   @id @default(autoincrement())
+  text       String   @db.Text
+  order      Int      
+  
+  subtopicId Int
+  subtopic   Subtopic @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
+  
+  createdAt  DateTime @default(now())
+
+  @@index([subtopicId])
+}
+
+model Example {
+  id         Int   @id @default(autoincrement())
+  text       String
+  order      Int     
+  
+  subtopicId Int
+  subtopic   Subtopic @relation(fields: [subtopicId], references: [id], onDelete: Cascade)
+  
+  createdAt  DateTime @default(now())
+
+  @@index([subtopicId])
+}
