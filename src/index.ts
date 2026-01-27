@@ -60,6 +60,20 @@ dotenv.config();
 const app: Application = express();
 const PORT: number = parseInt(process.env.PORT) || 5002;
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://ourlisa.com",
+  "https://www.ourlisa.com",
+  "https://www.sunain.com",
+  "https://beta.ourlisa.com",
+  "http://192.168.1.168:5173",
+  "http://0.0.0.0:5173",
+  "https://82b93bfbbf3f.ngrok-free.app",
+  "https://0e750b02e8f3.ngrok-free.app",
+  "https://annotation.sunain.com",
+  "http://localhost:3001",
+];
+
 const corsOptions =
   process.env.ALLOW_ALL_ORIGINS === "true"
     ? {
@@ -80,25 +94,16 @@ const corsOptions =
         credentials: true,
       };
 
-app.use(cors(corsOptions));
-
 app.use(cookieParser());
 app.set("trust proxy", 1);
-app.use(helmet());
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://ourlisa.com",
-  "https://www.ourlisa.com",
-  "https://www.sunain.com",
-  "https://beta.ourlisa.com",
-  "http://192.168.1.168:5173",
-  "http://0.0.0.0:5173",
-  "https://82b93bfbbf3f.ngrok-free.app",
-  "https://0e750b02e8f3.ngrok-free.app",
-  "https://annotation.sunain.com",
-  "http://localhost:3001",
-];
+// CORS MUST COME FIRST
+app.use(cors(corsOptions));
+
+app.options("*", cors(corsOptions));
+
+// Then helmet
+app.use(helmet());
 
 app.use(express.json());
 
