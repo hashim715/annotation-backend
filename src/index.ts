@@ -125,8 +125,8 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 app.use("/v1/uploadUrl", uploadRouter);
 app.use("/v1/auth", authRouter);
 app.use("/v1/user", userRouter);
-app.use("/v1/zoomSDKAuth", ZoomAuthEndpointRouter);
-app.use("/v1/zoom", zoomRouter);
+// app.use("/v1/zoomSDKAuth", ZoomAuthEndpointRouter);
+// app.use("/v1/zoom", zoomRouter);
 app.use("/v1/health", healthCheckRouter);
 app.use("/v1/conversationsData", conversationDataRouter);
 app.use("/v1/stripe", stripeRouter);
