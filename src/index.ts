@@ -58,27 +58,7 @@ const cleanupUnverifiedAccounts = async () => {
 dotenv.config();
 
 const app: Application = express();
-const PORT: number = parseInt(process.env.PORT) || 5001;
-
-app.use(cookieParser());
-app.set("trust proxy", 1);
-app.use(helmet());
-
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://ourlisa.com",
-  "https://www.ourlisa.com",
-  "https://www.sunain.com",
-  "https://beta.ourlisa.com",
-  "http://192.168.1.168:5173",
-  "http://0.0.0.0:5173",
-  "https://82b93bfbbf3f.ngrok-free.app",
-  "https://0e750b02e8f3.ngrok-free.app",
-  "https://annotation.sunain.com",
-  "http://localhost:3001",
-];
-
-app.use(express.json());
+const PORT: number = parseInt(process.env.PORT) || 5002;
 
 const corsOptions =
   process.env.ALLOW_ALL_ORIGINS === "true"
@@ -101,6 +81,26 @@ const corsOptions =
       };
 
 app.use(cors(corsOptions));
+
+app.use(cookieParser());
+app.set("trust proxy", 1);
+app.use(helmet());
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://ourlisa.com",
+  "https://www.ourlisa.com",
+  "https://www.sunain.com",
+  "https://beta.ourlisa.com",
+  "http://192.168.1.168:5173",
+  "http://0.0.0.0:5173",
+  "https://82b93bfbbf3f.ngrok-free.app",
+  "https://0e750b02e8f3.ngrok-free.app",
+  "https://annotation.sunain.com",
+  "http://localhost:3001",
+];
+
+app.use(express.json());
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
